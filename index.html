@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+q<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -272,6 +272,196 @@
         }
     });
 </script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DsMüzik - Akorlar ve Akort Sistemi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary-color: #38bdf8;
+            --accent-color: #ef4444;
+            --success-color: #22c55e;
+            --text-color: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+        }
+
+        /* Navbar Tasarımı */
+        nav {
+            background-color: var(--card-bg);
+            padding: 15px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary-color); }
+
+        .search-bar {
+            background: #334155;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            color: white;
+            width: 300px;
+        }
+
+        /* Ana İçerik */
+        .main-content {
+            padding: 40px 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            border-left: 4px solid var(--primary-color);
+            padding-left: 15px;
+            margin-bottom: 25px;
+        }
+
+        /* Şarkıcı Kartları Grid */
+        .artist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .artist-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: 0.3s;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .artist-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+        }
+
+        .artist-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+            background: #334155;
+        }
+
+        /* Akort Cihazı Bölümü (Alt Kısım) */
+        .tuner-section {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .chord-list {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+
+        .chord-item {
+            background: #334155;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            opacity: 0.5;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">DsMüzik</div>
+    <input type="text" class="search-bar" placeholder="Şarkı veya sanatçı ara...">
+    <div>
+        <a href="#tuner" style="color: white; text-decoration: none; font-weight: bold;">Akort Aracı</a>
+    </div>
+</nav>
+
+<div class="main-content">
+    
+    <h2 class="section-title">Popüler Sanatçılar</h2>
+    <div class="artist-grid">
+        <div class="artist-card">
+            <img src="https://via.placeholder.com/80" alt="Semicenk">
+            <h3>Semicenk</h3>
+            <p>12 Akor</p>
+        </div>
+        <div class="artist-card">
+            <img src="https://via.placeholder.com/80" alt="Şebnem Ferah">
+            <h3>Şebnem Ferah</h3>
+            <p>45 Akor</p>
+        </div>
+        <div class="artist-card">
+            <img src="https://via.placeholder.com/80" alt="Ferdi Tayfur">
+            <h3>Ferdi Tayfur</h3>
+            <p>30 Akor</p>
+        </div>
+        <div class="artist-card">
+            <img src="https://via.placeholder.com/80" alt="Teoman">
+            <h3>Teoman</h3>
+            <p>50 Akor</p>
+        </div>
+    </div>
+
+    <h2 class="section-title">Son Eklenen Akorlar</h2>
+    <div class="chord-list">
+        <div class="chord-item">
+            <span><strong>Semicenk</strong> - Pişman Değilim</span>
+            <span style="color: var(--primary-color)">Akorları Gör</span>
+        </div>
+        <div class="chord-item">
+            <span><strong>Şebnem Ferah</strong> - Sil Baştan</span>
+            <span style="color: var(--primary-color)">Akorları Gör</span>
+        </div>
+        <div class="chord-item">
+            <span><strong>Ferdi Tayfur</strong> - Huzurum Kalmadı</span>
+            <span style="color: var(--primary-color)">Akorları Gör</span>
+        </div>
+    </div>
+
+    <div id="tuner" class="tuner-section">
+        <h2>Gitarını Akort Et</h2>
+        <p>En doğru sonuçlar için sessiz bir ortamda mikrofonu kullanın.</p>
+        <button onclick="window.location.href='#'; alert('Akort aracı yükleniyor...');">Akort Cihazını Aç</button>
+    </div>
+
+</div>
+
+<footer>
+    &copy; 2026 DsMüzik - Türkiye'nin Yeni Akor Platformu
+</footer>
 
 </body>
 </html>
