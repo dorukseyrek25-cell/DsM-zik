@@ -600,3 +600,136 @@ Gülmesin yüzüne her iki dünyada`
 
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DsMüzik | Dünyanın Akor Merkezi</title>
+    <style>
+        :root {
+            --bg: #0b0f1a; --card: #161e2d; --text: #f1f5f9; --primary: #00d2ff; --gold: #fbbf24;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+        
+        /* Navigasyon */
+        nav { background: #1e293b; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); position: sticky; top:0; z-index:100; }
+        .logo { font-size: 24px; font-weight: bold; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; cursor: pointer; }
+        #searchInput { padding: 10px; width: 300px; border-radius: 5px; border: none; outline: none; }
+
+        .layout { display: flex; max-width: 1300px; margin: 20px auto; gap: 20px; padding: 0 20px; }
+        
+        /* Sol Menü / Reklam */
+        .sidebar { width: 250px; display: flex; flex-direction: column; gap: 20px; }
+        .ad-box { background: #2d3748; padding: 20px; border-radius: 10px; border: 1px dashed var(--gold); text-align: center; font-size: 14px; }
+
+        /* Orta İçerik */
+        .main-content { flex: 1; }
+        .song-card { background: var(--card); padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+        .song-card:hover { background: #1e293b; transform: scale(1.01); border-left: 5px solid var(--primary); }
+
+        /* Akor Sayfası */
+        #chordPage { display: none; background: var(--card); padding: 30px; border-radius: 15px; }
+        pre { font-family: 'Courier New', monospace; font-size: 18px; color: #cbd5e1; line-height: 1.6; background: #0f172a; padding: 20px; border-radius: 10px; overflow-x: auto; }
+        .chord { color: var(--primary); font-weight: bold; }
+
+        /* Destek ve Footer */
+        .support-us { background: linear-gradient(90deg, #00d2ff, #3a7bd5); color: white; padding: 15px; text-align: center; border-radius: 10px; margin-top: 20px; font-weight: bold; }
+        footer { text-align: center; padding: 40px; opacity: 0.6; }
+
+        .btn { background: var(--primary); color: black; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo" onclick="location.reload()">DsMüzik</div>
+    <input type="text" id="searchInput" placeholder="Sanatçı, Şarkı veya Akor Ara..." onkeyup="searchSongs()">
+    <button class="btn">Giriş Yap</button>
+</nav>
+
+<div class="layout">
+    <div class="sidebar">
+        <div class="ad-box">
+            <h4 style="color:var(--gold)">MÜZİK MARKET</h4>
+            <p>En kaliteli gitarlar ve penalar burada! %20 İndirim kodunuz: DSMUZIK20</p>
+            <button class="btn" style="font-size: 12px;">İncele</button>
+        </div>
+        <div class="ad-box">
+            <h4 style="color:var(--primary)">CANLI KONSERLER</h4>
+            <p>Semicenk ve Şebnem Ferah turne biletleri satışta!</p>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="homePage">
+            <div class="support-us">🚀 DsMüzik Gelişiyor! Bize destek olmak için paylaşmayı unutmayın. En iyi akor sitesi!</div>
+            <h2 style="margin-top: 30px;">Tüm Şarkılar</h2>
+            <div id="songList"></div>
+        </div>
+
+        <div id="chordPage">
+            <button class="btn" onclick="showHome()">← Listeye Dön</button>
+            <h2 id="displayTitle" style="margin-top:20px;"></h2>
+            <p id="displayArtist" style="color: var(--primary);"></p>
+            <pre id="displayContent"></pre>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <p>DsMüzik &copy; 2026 - Türkiye'nin En Büyük Akor Platformu</p>
+    <p style="font-size: 12px;">Veriler Vikipedi ve Genel Müzik Arşivlerinden derlenmiştir.</p>
+</footer>
+
+<script>
+    // Genişletilmiş Veritabanı
+    const songs = [
+        { id: 1, artist: "Semicenk", title: "Canın Sağ Olsun", content: "<span class='chord'>Am</span>             <span class='chord'>G</span>\nKaderi ben mi yazdım sanki\n<span class='chord'>F</span>              <span class='chord'>E</span>\nSilemem ki tek bir satırı bile\n<span class='chord'>Am</span>             <span class='chord'>G</span>\nCanın sağ olsun be gülüm\n<span class='chord'>F</span>              <span class='chord'>E</span>\nÖmür biter, dert bitmez içimde" },
+        { id: 2, artist: "Şebnem Ferah", title: "Sil Baştan", content: "<span class='chord'>C#m</span>          <span class='chord'>A</span>\nSanki hiç yaşanmamış gibi\n<span class='chord'>E</span>           <span class='chord'>B</span>\nHer şeyi sil baştan\n<span class='chord'>C#m</span>          <span class='chord'>A</span>\nÖğrenmek gerek yeniden\n<span class='chord'>E</span>           <span class='chord'>B</span>\nAşkı, hayatı ve her şeyi" },
+        { id: 3, artist: "Teoman", title: "Papatya", content: "<span class='chord'>Em</span>          <span class='chord'>C</span>\nPapatya, bugün bakmadın hiç yüzüme\n<span class='chord'>G</span>           <span class='chord'>D</span>\nSanki dargın gibisin bana\n<span class='chord'>Em</span>          <span class='chord'>C</span>\nEski bir dost gibi" },
+        { id: 4, artist: "Taylor Swift", title: "Love Story", content: "<span class='chord'>C</span>\nWe were both young when I first saw you\n<span class='chord'>G</span>\nI close my eyes and the flashback starts\n<span class='chord'>Am</span>                <span class='chord'>F</span>\nI'm standing there..." }
+    ];
+
+    function displaySongs(data) {
+        const list = document.getElementById('songList');
+        list.innerHTML = '';
+        data.forEach(song => {
+            list.innerHTML += `
+                <div class="song-card" onclick="openSong(${song.id})">
+                    <div>
+                        <strong>${song.title}</strong><br>
+                        <small style="color:var(--primary)">${song.artist}</small>
+                    </div>
+                    <span style="color:var(--gold)">Akorları Gör →</span>
+                </div>
+            `;
+        });
+    }
+
+    function openSong(id) {
+        const song = songs.find(s => s.id === id);
+        document.getElementById('homePage').style.display = 'none';
+        document.getElementById('chordPage').style.display = 'block';
+        document.getElementById('displayTitle').innerText = song.title;
+        document.getElementById('displayArtist').innerText = song.artist;
+        document.getElementById('displayContent').innerHTML = song.content;
+    }
+
+    function showHome() {
+        document.getElementById('homePage').style.display = 'block';
+        document.getElementById('chordPage').style.display = 'none';
+    }
+
+    function searchSongs() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = songs.filter(s => s.artist.toLowerCase().includes(term) || s.title.toLowerCase().includes(term));
+        displaySongs(filtered);
+    }
+
+    // Başlangıç
+    displaySongs(songs);
+</script>
+
+</body>
+</html>
