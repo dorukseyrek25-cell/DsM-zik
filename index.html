@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DsMüzik - Online Gitar Akort Et</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary-color: #38bdf8;
+            --accent-color: #ef4444;
+            --success-color: #22c55e;
+            --text-color: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            padding: 20px;
+            text-align: center;
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            margin: 0;
+            color: var(--primary-color);
+            letter-spacing: -1px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 90%;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .tuner-display {
+            position: relative;
+            height: 200px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #334155;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            overflow: hidden;
+        }
+
+        .needle {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            width: 4px;
+            height: 150px;
+            background: var(--primary-color);
+            transform-origin: bottom center;
+            transform: rotate(0deg);
+            transition: transform 0.1s ease-out;
+            border-radius: 2px;
+            z-index: 2;
+        }
+
+        .note-name {
+            font-size: 5rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: var(--text-color);
+        }
+
+        .frequency {
+            font-family: monospace;
+            opacity: 0.6;
+        }
+
+        .status-msg {
+            margin-top: 20px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: var(--bg-color);
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.2s;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background-color: #7dd3fc;
+        }
+
+        .gauge-marks {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 0 10%;
+            box-sizing: border-box;
+            opacity: 0.3;
+        }
+
+        .mark { width: 2px; height: 20px; background: white; }
+        .mark.center { height: 40px; background: var(--success-color); opacity: 1; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>DsMüzik</h1>
+</header>
+
+<div class="container">
+    <div class="tuner-display">
+        <div class="gauge-marks">
+            <div class="mark"></div>
+            <div class="mark"></div>
+            <div class="mark center"></div>
+            <div class="mark"></div>
+            <div class="mark"></div>
+        </div>
+        <div class="needle" id="needle"></div>
+    </div>
+    
+    <div class="note-name" id="note">--</div>
+    <div class="frequency"><span id="freq">0.00</span> Hz</div>
+    
+    <div class="status-msg" id="status">Mikrofonu Başlatın</div>
+    
+    <button id="startBtn">Akort Etmeye Başla</button>
+</div>
+
+<script>
+    const startBtn = document.getElementById('startBtn');
+    const noteEl = document.getElementById('note');
+    const freqEl = document.getElementById('freq');
+    const needleEl = document.getElementById('needle');
+    const statusEl = document.getElementById('status');
+
+    let audioCtx;
+    let analyser;
+    let bufferLength;
+    let dataArray;
+    let isRunning = false;
+
+    function getNote(frequency) {
+        const j = Math.round(12 * (Math.log2(frequency / 440))) + 69;
+        const name = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"][j % 12];
+        return { name, index: j };
+    }
+
+    async function initAudio() {
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const source = audioCtx.createMediaStreamSource(stream);
+            
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 2048;
+            source.connect(analyser);
+
+            bufferLength = analyser.frequencyBinCount;
+            dataArray = new Float32Array(bufferLength);
+            
+            statusEl.innerText = "Dinleniyor...";
+            statusEl.style.color = "#22c55e";
+            update();
+        } catch (err) {
+            statusEl.innerText = "Mikrofon erişimi reddedildi!";
+        }
+    }
+
+    function autoCorrelate(buf, sampleRate) {
+        let SIZE = buf.length;
+        let rms = 0;
+        for (let i = 0; i < SIZE; i++) {
+            rms += buf[i] * buf[i];
+        }
+        rms = Math.sqrt(rms / SIZE);
+        if (rms < 0.01) return -1;
+
+        let r1 = 0, r2 = SIZE - 1, thres = 0.2;
+        for (let i = 0; i < SIZE / 2; i++) {
+            if (Math.abs(buf[i]) < thres) { r1 = i; break; }
+        }
+        for (let i = 1; i < SIZE / 2; i++) {
+            if (Math.abs(buf[SIZE - i]) < thres) { r2 = SIZE - i; break; }
+        }
+
+        buf = buf.slice(r1, r2);
+        SIZE = buf.length;
+
+        let c = new Array(SIZE).fill(0);
+        for (let i = 0; i < SIZE; i++) {
+            for (let j = 0; j < SIZE - i; j++) {
+                c[i] = c[i] + buf[j] * buf[j + i];
+            }
+        }
+
+        let d = 0; while (c[d] > c[d + 1]) d++;
+        let maxval = -1, maxpos = -1;
+        for (let i = d; i < SIZE; i++) {
+            if (c[i] > maxval) {
+                maxval = c[i];
+                maxpos = i;
+            }
+        }
+        return sampleRate / maxpos;
+    }
+
+    function update() {
+        if (!isRunning) return;
+        
+        analyser.getFloatTimeDomainData(dataArray);
+        const pitch = autoCorrelate(dataArray, audioCtx.sampleRate);
+
+        if (pitch !== -1 && pitch < 1000) {
+            const noteData = getNote(pitch);
+            noteEl.innerText = noteData.name;
+            freqEl.innerText = pitch.toFixed(2);
+
+            const expectedFreq = 440 * Math.pow(2, (noteData.index - 69) / 12);
+            const diff = pitch - expectedFreq;
+            const angle = Math.max(-45, Math.min(45, diff * 5));
+            needleEl.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+            
+            if(Math.abs(diff) < 0.5) {
+                needleEl.style.background = "var(--success-color)";
+            } else {
+                needleEl.style.background = "var(--primary-color)";
+            }
+        }
+        requestAnimationFrame(update);
+    }
+
+    startBtn.addEventListener('click', () => {
+        if (!isRunning) {
+            isRunning = true;
+            initAudio();
+            startBtn.innerText = "Durdur";
+        } else {
+            isRunning = false;
+            audioCtx.close();
+            startBtn.innerText = "Akort Etmeye Başla";
+            statusEl.innerText = "Durduruldu";
+            noteEl.innerText = "--";
+            freqEl.innerText = "0.00";
+        }
+    });
+</script>
+
+</body>
+</html>
