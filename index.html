@@ -465,3 +465,138 @@ q<!DOCTYPE html>
 
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DsMüzik - Akor Arşivi ve Tuner</title>
+    <style>
+        :root {
+            --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --primary: #38bdf8; --accent: #fbbf24;
+        }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 50px; }
+        nav { background: var(--card); padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); cursor: pointer; }
+        #searchInput { padding: 8px 15px; border-radius: 20px; border: none; width: 250px; outline: none; }
+        
+        .container { max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; cursor: pointer; transition: 0.3s; text-align: center; border: 1px solid transparent; }
+        .card:hover { border-color: var(--primary); transform: translateY(-3px); }
+        
+        /* Akor Görüntüleme Alanı */
+        #contentArea { display: none; background: var(--card); padding: 30px; border-radius: 15px; margin-top: 30px; line-height: 1.8; }
+        .chord { color: var(--accent); font-weight: bold; cursor: help; }
+        pre { font-family: monospace; font-size: 1.1rem; white-space: pre-wrap; word-wrap: break-word; }
+        .back-btn { background: var(--primary); color: var(--bg); border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo" onclick="home()">DsMüzik</div>
+    <input type="text" id="searchInput" placeholder="Şarkı veya Sanatçı Ara..." onkeyup="search()">
+</nav>
+
+<div class="container">
+    <div id="homeView">
+        <h2>Popüler Sanatçılar</h2>
+        <div class="grid" id="artistGrid">
+            </div>
+    </div>
+
+    <div id="contentArea">
+        <button class="back-btn" onclick="home()">← Geri Dön</button>
+        <h2 id="songTitle"></h2>
+        <h3 id="artistName" style="color: var(--primary);"></h3>
+        <hr border="0" style="border-top: 1px solid #334155;">
+        <pre id="lyricsAndChords"></pre>
+    </div>
+</div>
+
+<script>
+    // VERİTABANI (Buraya istediğin kadar şarkı ekleyebiliriz)
+    const database = [
+        {
+            id: 1, artist: "Semicenk", title: "Pişman Değilim",
+            content: `
+<span class="chord">Am</span>             <span class="chord">G</span>
+Bir gün olsun gülmedim ki
+<span class="chord">F</span>              <span class="chord">E</span>
+Pişman da değilim sevdiğime
+<span class="chord">Am</span>             <span class="chord">G</span>
+Yollar uzak, gönül yorgun
+<span class="chord">F</span>              <span class="chord">E</span>
+Dönmedim ki geri bir kere`
+        },
+        {
+            id: 2, artist: "Şebnem Ferah", title: "Sil Baştan",
+            content: `
+<span class="chord">C#m</span>            <span class="chord">A</span>
+Gücün var mı sevmeye?
+<span class="chord">E</span>             <span class="chord">B</span>
+Her şeyi sil baştan
+<span class="chord">C#m</span>            <span class="chord">A</span>
+Çalıyor yine o eski şarkılar
+<span class="chord">E</span>             <span class="chord">B</span>
+Anılar uyanıyor`
+        },
+        {
+            id: 3, artist: "Ferdi Tayfur", title: "Huzurum Kalmadı",
+            content: `
+<span class="chord">Em</span>            <span class="chord">Am</span>
+Huzurum kalmadı fani dünyada
+<span class="chord">G</span>             <span class="chord">B7</span>
+Yapıştı canıma bir kara sevda
+<span class="chord">Em</span>            <span class="chord">Am</span>
+Seni benden alan o kötü kader
+<span class="chord">D</span>             <span class="chord">Em</span>
+Gülmesin yüzüne her iki dünyada`
+        }
+    ];
+
+    function displayArtists(data) {
+        const grid = document.getElementById('artistGrid');
+        grid.innerHTML = '';
+        data.forEach(item => {
+            grid.innerHTML += `
+                <div class="card" onclick="showSong(${item.id})">
+                    <h3>${item.artist}</h3>
+                    <p>${item.title}</p>
+                </div>
+            `;
+        });
+    }
+
+    function showSong(id) {
+        const song = database.find(s => s.id === id);
+        document.getElementById('homeView').style.display = 'none';
+        document.getElementById('contentArea').style.display = 'block';
+        document.getElementById('songTitle').innerText = song.title;
+        document.getElementById('artistName').innerText = song.artist;
+        document.getElementById('lyricsAndChords').innerHTML = song.content;
+    }
+
+    function home() {
+        document.getElementById('homeView').style.display = 'block';
+        document.getElementById('contentArea').style.display = 'none';
+        document.getElementById('searchInput').value = '';
+        displayArtists(database);
+    }
+
+    function search() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = database.filter(s => 
+            s.artist.toLowerCase().includes(term) || 
+            s.title.toLowerCase().includes(term)
+        );
+        displayArtists(filtered);
+    }
+
+    // İlk açılışta sanatçıları göster
+    displayArtists(database);
+</script>
+
+</body>
+</html>
